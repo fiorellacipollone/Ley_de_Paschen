@@ -8,3 +8,6 @@ df = DF(XLSX.readtable(excel, "Hoja1"))
 df.pd = df.d_mm .* df.P_torr
 
 scatter(df.pd, df.V_subida, xlabel="pd", ylabel="voltaje subida")
+
+filtro = groupby(df, d_mm)
+println(filtro)
