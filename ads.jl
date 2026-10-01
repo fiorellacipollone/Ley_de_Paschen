@@ -4,16 +4,9 @@ using LsqFit
 using DataFrames, XLSX
 const DF = DataFrame # para no tener que llamar al paquete por el nombre completo
 
-function paschen(pd, p)
-
-    B, C, k = p
-
-    x = pd .+ k
-    denom = log.(x) .+ C
-
-    return B .* x ./ denom
-
-end
+# cargo el archivo con el modulo 
+include("functions.jl")
+using .AnalisisPaschen # importo todas las funciones de modelos y ajustes
 
 p0 = [100.0, -0.4, 0.0]
 
@@ -24,7 +17,7 @@ df.pd = df.d_mm .* df.P_torr
 
 # Agrupa combinando la fecha y la distancia
 grupos = groupby(df, [:date, :d_mm])
-c = grupos[8]
+c = grupos[9]
 
 scatter(c.pd, c.V_subida, xlabel="pd", ylabel=L"V_{subida}", label="fecha: $(c.date[1]), dist: $(c.d_mm[1])mm")
 
