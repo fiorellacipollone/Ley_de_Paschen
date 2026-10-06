@@ -19,8 +19,8 @@ df = DF(XLSX.readtable(excel, "Hoja1"))
 df.pd = df.d_mm .* df.P_torr
 
 # Agrupa combinando la fecha y la distancia
-grupos = groupby(df, [:date, :d_mm]) #actualmente 17
-c = grupos[19]
+grupos = groupby(df, [:date, :d_mm]) # actualmente 06/10 arranca en 18
+c = grupos[22]
 
 # println(grupos)
 

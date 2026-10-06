@@ -23,8 +23,8 @@ grupos_fecha = groupby(df, :date)
 
 # 2. Seleccionar el día que deseas graficar (por ejemplo, el primer día)
 # Puedes cambiar el índice [1] o buscar la fecha que necesites
-datos_un_dia = grupos_fecha[5]
-fecha_plot = datos_un_dia.date[5]
+datos_un_dia = grupos_fecha[6]
+fecha_plot = datos_un_dia.date[6]
 
 # 06/10 = indice 6
 
