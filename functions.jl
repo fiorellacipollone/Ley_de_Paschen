@@ -73,5 +73,21 @@ function analizar_curva(pd,V,n_deriv)
     return (fit, pd_fit, V_fit, xder, yder, m, b)
 end
 
+"Printeo de algunas cosas útiles.
+y: datos
+model: ajuste"
+function printable(y, model)
+
+    #calculo del R^2
+    residuos = y .- model
+    ss_res = sum(residuos.^2)
+
+    media = mean(y)
+    ss_tot = sum((y.-media).^2)
+
+    R2 = 1 - (ss_res/ss_tot)
+
+    println("R2 = ", R2)
+end
 
 end # cierra el modulo
