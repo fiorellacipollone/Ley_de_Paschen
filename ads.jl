@@ -14,7 +14,7 @@ const AP = AnalisisPaschen
 p0 = [100.0, -0.4, 0.0]
 
 excel = "Ley_de_Paschen/datos.xlsx"
-df = DF(XLSX.readtable(excel, "Hoja1"))
+df = DF(XLSX.readtable("Ley_de_Paschen/datos.xlsx", "Hoja1"))
 
 df.pd = df.d_mm .* df.P_torr
 

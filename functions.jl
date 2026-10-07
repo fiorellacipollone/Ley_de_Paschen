@@ -1,75 +1,71 @@
 module AnalisisPaschen
+    export paschen, analizar_curva, ajustar_paschen
 
-export paschen, analizar_curva, ajustar_paschen
+    function paschen(pd, p)
+        # valores
+        B, C, k = p
+        # modelo
+        x = pd .+ k
+        denom = log.(x) .+ C
 
-function paschen(pd, p)
-    # valores
-    B, C, k = p
-    # modelo
-    x = pd .+ k
-    denom = log.(x) .+ C
+        return B .* x ./ denom
+    end
 
-    return B .* x ./ denom
-end
+    function ajustar_paschen(pd, V)
 
-function ajustar_paschen(pd, V)
+        p0 = [300.0, 1.0, 0.5]
+        lower = [1.0, -10.0, -1.0]
+        upper = [5000.0, 10.0, 2.0]
 
-    p0 = [300.0, 1.0, 0.5]
+        fit = curve_fit(
+            paschen,
+            pd,
+            V,
+            p0,
+            lower = lower,
+            upper = upper)
 
-    lower = [1.0, -10.0, -1.0]
-    upper = [5000.0, 10.0, 2.0]
+        pars = fit.param
+        errs = stderror(fit)
 
-    fit = curve_fit(
-        paschen,
-        pd,
-        V,
-        p0,
-        lower = lower,
-        upper = upper
-    )
+        N = length(V)
+        npar = length(pars)
 
-    pars = fit.param
-    errs = stderror(fit)
+        σ_res = sqrt(
+            sum(fit.resid.^2) / (N - npar))
 
-    N = length(V)
-    npar = length(pars)
+        return fit, pars, errs, σ_res
 
-    σ_res = sqrt(
-        sum(fit.resid.^2) / (N - npar)
-    )
+    end
 
-    return fit, pars, errs, σ_res
+    function recta(x, p)
+        m, b = p
+        return m .* x .+ b
+    end
 
-end
+    function analizar_curva(pd,V,n_deriv)
 
-function recta(x, p)
-    m, b = p
-    return m .* x .+ b
-end
+        orden = sortperm(pd)
 
-function analizar_curva(pd,V,n_deriv)
+        pd = pd[orden]
+        V  = V[orden]
 
-    orden = sortperm(pd)
+        p0 = [300.0,1.0,0.5]
+        lower = [1.0,-20.0,-1.0]
+        upper = [5000.0,20.0,5.0]
 
-    pd = pd[orden]
-    V  = V[orden]
+        fit = curve_fit(paschen, pd, V, p0, lower=lower, upper=upper)
 
-    p0 = [300.0,1.0,0.5]
-    lower = [1.0,-20.0,-1.0]
-    upper = [5000.0,20.0,5.0]
+        pd_fit = range(minimum(pd), maximum(pd), length=1000)
+        V_fit = paschen(pd_fit, fit.param)
 
-    fit = curve_fit(paschen, pd, V, p0, lower=lower, upper=upper)
+        xder = collect(pd_fit[end-n_deriv+1:end])
+        yder = collect(V_fit[end-n_deriv+1:end])
 
-    pd_fit = range(minimum(pd), maximum(pd), length=1000)
-    V_fit = paschen(pd_fit, fit.param)
+        fit_lin = curve_fit(recta, xder, yder, [1.0, mean(yder)])
 
-    xder = collect(pd_fit[end-n_deriv+1:end])
-    yder = collect(V_fit[end-n_deriv+1:end])
+        m,b = fit_lin.param
 
-    fit_lin = curve_fit(recta, xder, yder, [1.0, mean(yder)])
-
-    m,b = fit_lin.param
-
-    return (fit, pd_fit, V_fit, xder, yder, m, b)
-end
+        return (fit, pd_fit, V_fit, xder, yder, m, b)
+    end
 end # cierra el modulo
