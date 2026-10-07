@@ -9,7 +9,6 @@ module Plotter
     const DF = DataFrame
 
     function graph_comparative(df, filtro, subject_data, filtro_label; indice=1)
-        sf, gsd = group_comparative(df, :filtro, :subject_data, indice)
         filtro_plot = sf.subject_data[indice]
 
         # inicializar gráfica
