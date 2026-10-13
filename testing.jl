@@ -1,16 +1,23 @@
-using Revise
-
-include("functions.jl")
+# Carga de módulos
 include("xlsx_analisis.jl")
+include("functions.jl")
 include("plots.jl")
 
-using .AnalisisPaschen, .Plotter, .DataProcessor
+using .DataProcessor
+using .AnalisisPaschen
+using .Plotter
 
-# Código global directo sin depender de main()
-datfr = DataProcessor.excel_readdata_pd("Ley_de_Paschen/datos.xlsx", "Hoja1")
+ruta_excel = "G:/Mi unidad/programacióm/proyectos_física/Ley_de_Paschen/datos.xlsx"
+df_completo = DataProcessor.excel_readdata_pd(ruta_excel, "Hoja1")
 
-# Uso de Base.invokelatest para evitar el problema de world age, 
-# y corrección de 'indice=22' como keyword argument.
-dia, dist = Base.invokelatest(DataProcessor.group_comparative, datfr, :date, :d_mm, indice=6)
+# Distancias
+distancia_deseada = [10.0,15.0,20.0,25.0,30.0,35.0,40.0]  
 
-println(typeof(dia), typeof(dist))
+for didi in distancia_deseada
+    df_filtrado, fecha_max = DataProcessor.latest(df_completo, didi)
+
+    # 5. Graficar si se encontraron datos
+    if !isempty(df_filtrado)
+        Plotter.plot_latest_paschen(df_filtrado, didi, fecha_max)
+    end
+end

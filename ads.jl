@@ -21,6 +21,7 @@ df.pd = df.d_mm .* df.P_torr
 # Agrupa combinando la fecha y la distancia
 grupos = groupby(df, [:date, :d_mm]) # actualmente 06/10 arranca en 18
 c = grupos[22]
+# 22 ultimo grupo
 
 # println(grupos)
 
@@ -34,3 +35,13 @@ y_fit = AP.paschen(x_dense, ajuste.param)
 
 #ploteo el ajuste
 plot!(g1, x_dense, y_fit, label="ajuste de Paschen")
+
+# # grafica voltaje de bajada (todas las distancias)
+# g2 = plot(xlabel = L"pd", ylabel=L"V_{bajada}", legendfont=font(6))
+
+# for (i,d) in enumerate(grupos) 
+#     dist = d.d_mm[1]
+#     scatter!(g2, d.pd, d.V_bajada, label="distancia $dist mm", color = i)
+# end
+
+# display(g1)
