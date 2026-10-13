@@ -1,6 +1,10 @@
 module AnalisisPaschen
     export paschen, analizar_curva, ajustar_paschen
 
+    # importar librerías de ajustes
+    using LsqFit
+    using Statistics
+
     function paschen(pd, p)
         # valores
         B, C, k = p
@@ -13,8 +17,8 @@ module AnalisisPaschen
 
     function ajustar_paschen(pd, V)
 
-        p0 = [300.0, 1.0, 0.5]
-        lower = [1.0, -10.0, -1.0]
+        p0 = [100.0, -0.4, 0.0]
+        lower = [1.0, -10.0, 0.0] 
         upper = [5000.0, 10.0, 2.0]
 
         fit = curve_fit(
@@ -35,7 +39,6 @@ module AnalisisPaschen
             sum(fit.resid.^2) / (N - npar))
 
         return fit, pars, errs, σ_res
-
     end
 
     function recta(x, p)
