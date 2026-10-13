@@ -11,17 +11,17 @@ using .AnalisisPaschen # importo todas las funciones de modelos y ajustes
 
 const AP = AnalisisPaschen
 
-p0 = [100.0, -0.4, 0.0]
+p0 = [100.0, -0.4, 1.0]
 
-excel = "Ley_de_Paschen/datos.xlsx"
-df = DF(XLSX.readtable("Ley_de_Paschen/datos.xlsx", "Hoja1"))
+excel = "G:/Mi unidad/programacióm/proyectos_física/Ley_de_Paschen/datos.xlsx"
+df = DF(XLSX.readtable(excel, "Hoja1"))
 
 df.pd = df.d_mm .* df.P_torr
 
 # Agrupa combinando la fecha y la distancia
 grupos = groupby(df, [:date, :d_mm]) # actualmente 06/10 arranca en 18
-c = grupos[22]
-# 22 ultimo grupo
+c = grupos[25]
+# 24 ultimo grupo
 
 # println(grupos)
 
