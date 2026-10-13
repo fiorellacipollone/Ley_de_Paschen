@@ -1,5 +1,5 @@
 module Plotter
-    export graph_comparative, plot_latest_paschen
+    export graph_comparative, plot_latest_all_paschen
 
     using LaTeXStrings
     using Plots
@@ -8,7 +8,7 @@ module Plotter
     using Statistics
     const DF = DataFrame
 
-    import .AnalisisPaschen as AP
+    import Main.AnalisisPaschen as AP
 
     function graph_comparative(df, filtro, subject_data, filtro_label; indice=1)
         filtro_plot = sf.subject_data[indice]
@@ -16,7 +16,7 @@ module Plotter
         # inicializar gráfica
         grafica_comparativa = plot(
             xlabel=L"pd ", 
-            ylabel=L"V_{subida} ", 
+            ylabel=L"V_{subida}", 
             title="Fecha: $filtro_plot",
             legend=:bottomright,     
             palette=:tab10)
@@ -42,33 +42,46 @@ module Plotter
         display(grafica_comparativa)
     end # cierre graficador
     
-    function plot_latest_paschen(df_reciente, distancia, fecha)
-        # Inicializar la gráfica
+    function plot_latest_all_paschen(df_recientes)
+        # Inicializar la gráfica general vacía
         grafica = plot(
             xlabel=L"pd [Torr·mm]", 
-            ylabel=L"V_subida [V]", 
-            title="d = $distancia mm (Fecha: $fecha)",
-            legend=:bottomright,
+            ylabel=L"V_{subida} [V]", 
+            title="Medición más actual por distancia",
+            legend=:outertopright, # Mueve la leyenda afuera para que no tape las curvas
+            legendfontsize=8,
+            size=(850,550),
             palette=:tab10
         )
         
-        # Scatter de los datos experimentales
-        scatter!(grafica, df_reciente.pd, df_reciente.V_subida, label="Datos experimentales")
-
-        # Ajuste teórico utilizando el módulo de Física (AnalisisPaschen)
-        p0 = [300.0, 1.0, 0.5]
-        try
-            ajuste = curve_fit(AP.paschen, df_reciente.pd, df_reciente.V_subida, p0, lower=[1.0, -10.0, -1.0], upper=[5000.0, 10.0, 2.0])
+        # Agrupar el DataFrame filtrado por cada distancia
+        grupos_distancia = groupby(df_recientes, :d_mm)
+        
+        # Iterar sobre cada grupo (cada distancia)
+        for (i, grupo) in enumerate(grupos_distancia)
+            dist = grupo.d_mm[1]
+            fecha = grupo.date[1]
             
-            # Generar curva densa para el ploteo
-            x_dense = range(minimum(df_reciente.pd), maximum(df_reciente.pd), length=200)
-            y_fit = AP.paschen(x_dense, ajuste.param)
+            # Formatear la etiqueta para que quede como tu esquema "10mm - 08/09"
+            etiqueta = "$(dist)mm - $(fecha)"
             
-            plot!(grafica, x_dense, y_fit, label="Ajuste de Paschen", lw=2)
-        catch e
-            println("No se pudo realizar el ajuste teórico para d = $distancia mm")
+            # Ploteo de puntos usando el índice 'i' para fijar el color
+            scatter!(grafica, grupo.pd, grupo.V_subida, label="Datos " * etiqueta, color=i)
+            
+            # Ajuste y ploteo de la curva teórica usando el mismo color 'i'
+            try
+                fit, pars, errs, σ_res = AP.ajustar_paschen(grupo.pd, grupo.V_subida)
+                
+                x_dense = range(minimum(grupo.pd), maximum(grupo.pd), length=200)
+                y_fit = AP.paschen(x_dense, pars)
+                
+                plot!(grafica, x_dense, y_fit, label="Ajuste " * etiqueta, color=i, lw=2)
+            catch e
+                println("Fallo al ajustar d = $dist mm. Causa: $e")
+            end
         end
-
+        
+        # Mostrar la gráfica final con todas las curvas superpuestas
         display(grafica)
     end
 
